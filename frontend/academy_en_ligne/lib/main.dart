@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:legumes_app/core/utils/navigator.dart';
-import 'package:legumes_app/l10n/generated/app_localizations.dart';
-import 'package:legumes_app/presentation/providers/local_provider.dart';
+import 'package:academy_en_ligne/core/utils/navigator.dart';
+import 'package:academy_en_ligne/l10n/generated/app_localizations.dart';
+import 'package:academy_en_ligne/presentation/providers/local_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

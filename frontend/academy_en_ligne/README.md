@@ -1,4 +1,4 @@
-# legumes_app
+# academy_en_ligne
 
 A new Flutter project.
 

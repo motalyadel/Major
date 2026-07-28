@@ -1,4 +1,4 @@
-package com.example.legumes_app
+package com.example.academy_en_ligne
 
 import io.flutter.embedding.android.FlutterActivity
 

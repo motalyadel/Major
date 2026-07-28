@@ -1,5 +1,5 @@
 {
-  "name": "legumes",
+  "name": "academy_en_ligne",
   "type": "module",
   "scripts": {
     "start": "bun run main.ts",

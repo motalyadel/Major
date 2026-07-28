@@ -1,6 +1,6 @@
 {
-    "name": "legumes_app",
-    "short_name": "legumes_app",
+    "name": "academy_en_ligne",
+    "short_name": "academy_en_ligne",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
