@@ -4,6 +4,7 @@ import 'package:academy_en_ligne/features/student/home/login_page.dart';
 import 'package:academy_en_ligne/features/student/home/register_page.dart';
 import 'package:academy_en_ligne/features/student/home/splash_screen.dart';
 import 'package:academy_en_ligne/features/student/home/student_home_page.dart';
+import 'package:academy_en_ligne/features/student/providers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:academy_en_ligne/core/utils/navigator.dart';
@@ -27,7 +28,7 @@ void main() async {
 
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => LocaleProvider()),
-    // ChangeNotifierProvider.value(value: AuthController()),
+    ChangeNotifierProvider.value(value: AuthController()),
   ], child: const MyApp()));
 }
 
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(builder: (context, localeProvider, child) {
       return MaterialApp(
-        title: 'LOCAL VIGGIES',
+        title: 'MAJOR',
         debugShowCheckedModeBanner: false,
         supportedLocales: const [
           Locale('en'),

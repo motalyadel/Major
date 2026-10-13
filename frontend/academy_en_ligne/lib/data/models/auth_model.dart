@@ -105,22 +105,62 @@ class Student extends AuthModel {
   static String get tableName => "students";
 
   factory Student.fromMap(Map<String, dynamic> map) {
-    final studentData = map['student'] as Map<String, dynamic>? ?? {};
-    final roleList = List<Map<String, dynamic>>.from(map['roles'] ?? []);
-    final roles = roleList.map((item) => AppRole.fromMap(item['app_role'])).toList();
+    // ---- student (one-to-one) ----
+    final dynamic studentRaw = map['student'];
+    final Map<String, dynamic> studentData = studentRaw is Map<String, dynamic>
+        ? studentRaw
+        : (studentRaw is List && studentRaw.isNotEmpty
+            ? Map<String, dynamic>.from(studentRaw.first)
+            : <String, dynamic>{});
+
+    // ---- roles (one-to-many) ----
+    final dynamic rolesRaw = map['roles'];
+    List<AppRole> roles = [];
+
+    if (rolesRaw is List) {
+      roles = rolesRaw.map((item) {
+        if (item is Map<String, dynamic>) {
+          // Format : { app_role: { id: 'student' } }
+          if (item['app_role'] != null) {
+            return AppRole.fromMap(
+              Map<String, dynamic>.from(item['app_role']),
+            );
+          }
+          // Format alternatif : { role_id: 'student' }
+          if (item['role_id'] != null) {
+            return AppRole(id: item['role_id'] as String);
+          }
+        }
+        return AppRole(id: 'student');
+      }).toList();
+    } else if (rolesRaw is Map<String, dynamic>) {
+      // Cas rare : un seul rôle renvoyé comme objet
+      if (rolesRaw['app_role'] != null) {
+        roles = [
+          AppRole.fromMap(Map<String, dynamic>.from(rolesRaw['app_role']))
+        ];
+      } else if (rolesRaw['role_id'] != null) {
+        roles = [AppRole(id: rolesRaw['role_id'] as String)];
+      }
+    }
+
+    // Fallback de sécurité
+    if (roles.isEmpty) {
+      roles = [AppRole(id: 'student')];
+    }
 
     return Student(
-      id: map['id'] ?? '',
-      name: map['name'],
-      roles: roles.isNotEmpty ? roles : [AppRole(id: 'student')],
-      phone: studentData['phone'],
-      branch: studentData['branch'],
-      photoUrl: studentData['photo_url'],
+      id: map['id']?.toString() ?? '',
+      name: map['name'] as String?,
+      roles: roles,
+      phone: studentData['phone'] as String?,
+      branch: studentData['branch'] as String?,
+      photoUrl: studentData['photo_url'] as String?,
       subscriptionStatus: SubscriptionStatus.fromString(
-        studentData['subscription_status'],
+        studentData['subscription_status'] as String?,
       ),
       createdAt: studentData['created_at'] != null
-          ? DateTime.tryParse(studentData['created_at'])
+          ? DateTime.tryParse(studentData['created_at'].toString())
           : null,
     );
   }
