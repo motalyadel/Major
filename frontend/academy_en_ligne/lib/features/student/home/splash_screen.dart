@@ -1,4 +1,4 @@
-import 'package:academy_en_ligne/features/student/providers/auth_controller.dart';
+import 'package:academy_en_ligne/providers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

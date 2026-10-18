@@ -4,32 +4,113 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StudentService extends BaseService<Student> {
+  // @override
+  // Future<Student?> getUser() async {
+  //   try {
+  //     final user = clientSpb.auth.currentUser;
+  //     if (user == null) {
+  //       print('Aucun utilisateur connecté');
+  //       return null;
+  //     }
+
+  //     final response = await clientSpb.from('users').select('''
+  //           id, name,
+  //           student:students(*),
+  //           roles:user_roles(app_role(id))
+  //         ''').eq('id', user.id).single();
+
+  //     if (response['student'] == null) {
+  //       print('Données student absentes pour ${user.id}');
+  //       return null;
+  //     }
+
+  //     return Student.fromMap(response);
+  //   } catch (e, s) {
+  //     print('❌ Échec de getUser(): $e');
+  //     print('Stack trace: $s');
+  //     return null;
+  //   }
+  // }
+
   @override
-  Future<Student?> getUser() async {
+  Future<AuthModel?> getUser() async {
     try {
       final user = clientSpb.auth.currentUser;
       if (user == null) {
-        print('Aucun utilisateur connecté');
+        debugPrint('Aucun utilisateur connecté');
         return null;
       }
 
       final response = await clientSpb.from('users').select('''
-            id, name,
-            student:students(*),
-            roles:user_roles(app_role(id))
-          ''').eq('id', user.id).single();
+      id,
+      name,
+      student:students(*),
+      roles:user_roles(
+        role_id,
+        app_role(id)
+      )
+    ''').eq('id', user.id).maybeSingle();
 
+      if (response == null) {
+        debugPrint('Aucune ligne users pour ${user.id}');
+        return null;
+      }
+
+      // ---- Parser les rôles ----
+      final roles = _parseRoles(response['roles']);
+
+      final isAdmin = roles.any((r) => r.id == 'admin');
+
+      if (isAdmin) {
+        return Admin(
+          id: response['id'] as String,
+          name: response['name'] as String?,
+          roles: roles.isNotEmpty ? roles : [AppRole(id: 'admin')],
+        );
+      }
+
+      // ---- Student ----
       if (response['student'] == null) {
-        print('Données student absentes pour ${user.id}');
+        debugPrint('Données student absentes pour ${user.id}');
         return null;
       }
 
       return Student.fromMap(response);
     } catch (e, s) {
-      print('❌ Échec de getUser(): $e');
-      print('Stack trace: $s');
+      debugPrint('❌ Échec de getUser(): $e');
+      debugPrint('Stack trace: $s');
       return null;
     }
+  }
+
+  List<AppRole> _parseRoles(dynamic rolesRaw) {
+    final roles = <AppRole>[];
+
+    if (rolesRaw is List) {
+      for (final item in rolesRaw) {
+        if (item is! Map) continue;
+        final map = Map<String, dynamic>.from(item);
+
+        if (map['app_role'] != null) {
+          roles.add(
+            AppRole.fromMap(Map<String, dynamic>.from(map['app_role'])),
+          );
+        } else if (map['role_id'] != null) {
+          roles.add(AppRole(id: map['role_id'] as String));
+        }
+      }
+    } else if (rolesRaw is Map) {
+      final map = Map<String, dynamic>.from(rolesRaw);
+      if (map['app_role'] != null) {
+        roles.add(
+          AppRole.fromMap(Map<String, dynamic>.from(map['app_role'])),
+        );
+      } else if (map['role_id'] != null) {
+        roles.add(AppRole(id: map['role_id'] as String));
+      }
+    }
+
+    return roles;
   }
 
   /// Inscription 100% côté Supabase (pas d'API custom) :
@@ -143,43 +224,44 @@ class StudentService extends BaseService<Student> {
   // }
 
   Future<bool> createUser({
-  required String email,
-  required String password,
-  required String name,
-  String? phone,
-  String? branch,
-  String? photoUrl,
-  DateTime? createdAt,
-}) async {
-  try {
-    final authResponse = await clientSpb.auth.signUp(
-      email: email.trim(),
-      password: password,
-      data: {
-        'name': name.trim(),
-        if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
-        if (branch != null && branch.trim().isNotEmpty) 'branch': branch.trim(),
-        if (photoUrl != null && photoUrl.isNotEmpty) 'photo_url': photoUrl,
-      },
-    );
+    required String email,
+    required String password,
+    required String name,
+    String? phone,
+    String? branch,
+    String? photoUrl,
+    DateTime? createdAt,
+  }) async {
+    try {
+      final authResponse = await clientSpb.auth.signUp(
+        email: email.trim(),
+        password: password,
+        data: {
+          'name': name.trim(),
+          if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
+          if (branch != null && branch.trim().isNotEmpty)
+            'branch': branch.trim(),
+          if (photoUrl != null && photoUrl.isNotEmpty) 'photo_url': photoUrl,
+        },
+      );
 
-    if (authResponse.user == null) {
-      debugPrint('❌ Échec création utilisateur : utilisateur null');
+      if (authResponse.user == null) {
+        debugPrint('❌ Échec création utilisateur : utilisateur null');
+        return false;
+      }
+
+      debugPrint('✅ Utilisateur Auth créé : ${authResponse.user!.id}');
+      // Le trigger a déjà créé users + students (avec phone/branch) + user_roles
+      return true;
+    } on AuthApiException catch (e) {
+      debugPrint('⚠️ AuthApiException : ${e.message}');
+      return false;
+    } catch (e, stackTrace) {
+      debugPrint('❌ Échec createUser : $e');
+      debugPrint('Stack trace : $stackTrace');
       return false;
     }
-
-    debugPrint('✅ Utilisateur Auth créé : ${authResponse.user!.id}');
-    // Le trigger a déjà créé users + students (avec phone/branch) + user_roles
-    return true;
-  } on AuthApiException catch (e) {
-    debugPrint('⚠️ AuthApiException : ${e.message}');
-    return false;
-  } catch (e, stackTrace) {
-    debugPrint('❌ Échec createUser : $e');
-    debugPrint('Stack trace : $stackTrace');
-    return false;
   }
-}
 
   /// Mise à jour du profil student (name -> users, reste -> students).
   /// subscription_status n'est volontairement PAS modifiable ici :

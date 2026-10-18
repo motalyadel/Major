@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:academy_en_ligne/core/utils/navigator.dart';
-import 'package:academy_en_ligne/features/student/providers/auth_controller.dart';
+import 'package:academy_en_ligne/providers/auth_controller.dart';
 
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({super.key});
@@ -57,7 +57,6 @@ class AdminHomePage extends StatelessWidget {
               ),
             ],
           ),
-
           body: Center(
             child: Text(
               'Bienvenue${admin?.name != null ? ', ${admin!.name}' : ''} !',

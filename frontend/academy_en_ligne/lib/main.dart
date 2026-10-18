@@ -4,7 +4,8 @@ import 'package:academy_en_ligne/features/student/home/login_page.dart';
 import 'package:academy_en_ligne/features/student/home/register_page.dart';
 import 'package:academy_en_ligne/features/student/home/splash_screen.dart';
 import 'package:academy_en_ligne/features/student/home/student_home_page.dart';
-import 'package:academy_en_ligne/features/student/providers/auth_controller.dart';
+import 'package:academy_en_ligne/providers/auth_controller.dart';
+import 'package:academy_en_ligne/providers/subject_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:academy_en_ligne/core/utils/navigator.dart';
@@ -29,6 +30,7 @@ void main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => LocaleProvider()),
     ChangeNotifierProvider.value(value: AuthController()),
+    ChangeNotifierProvider(create: (_) => SubjectProvider()),
   ], child: const MyApp()));
 }
 

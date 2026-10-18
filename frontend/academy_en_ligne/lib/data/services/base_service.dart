@@ -62,5 +62,5 @@ abstract class BaseService<T extends AuthModel> {
     await clientSpb.auth.signOut();
   }
 
-  Future<T?> getUser();
+  Future<AuthModel?> getUser();
 }

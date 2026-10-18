@@ -40,13 +40,52 @@ class Admin extends AuthModel {
 
   static String get tableName => "admin";
 
+  // factory Admin.fromMap(Map<String, dynamic> map) {
+  //   return Admin(
+  //     id: map['id'] as String,
+  //     name: map['name'] as String?,
+  //     roles: List<Map<String, dynamic>>.from(map['roles'] ?? [])
+  //         .map((item) => AppRole.fromMap(item['app_role']))
+  //         .toList(),
+  //   );
+  // }
+
   factory Admin.fromMap(Map<String, dynamic> map) {
+    final dynamic rolesRaw = map['roles'];
+    List<AppRole> roles = [];
+
+    if (rolesRaw is List) {
+      roles = rolesRaw.map((item) {
+        if (item is Map<String, dynamic>) {
+          if (item['app_role'] != null) {
+            return AppRole.fromMap(
+              Map<String, dynamic>.from(item['app_role']),
+            );
+          }
+          if (item['role_id'] != null) {
+            return AppRole(id: item['role_id'] as String);
+          }
+        }
+        return AppRole(id: 'admin');
+      }).toList();
+    } else if (rolesRaw is Map<String, dynamic>) {
+      if (rolesRaw['app_role'] != null) {
+        roles = [
+          AppRole.fromMap(Map<String, dynamic>.from(rolesRaw['app_role'])),
+        ];
+      } else if (rolesRaw['role_id'] != null) {
+        roles = [AppRole(id: rolesRaw['role_id'] as String)];
+      }
+    }
+
+    if (roles.isEmpty) {
+      roles = [AppRole(id: 'admin')];
+    }
+
     return Admin(
       id: map['id'] as String,
       name: map['name'] as String?,
-      roles: List<Map<String, dynamic>>.from(map['roles'] ?? [])
-          .map((item) => AppRole.fromMap(item['app_role']))
-          .toList(),
+      roles: roles,
     );
   }
 
