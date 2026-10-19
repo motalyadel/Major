@@ -302,4 +302,49 @@ class StudentService extends BaseService<Student> {
       return false;
     }
   }
+
+  Future<String?> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = clientSpb.auth.currentUser;
+      final email = user?.email?.trim();
+
+      if (email == null || email.isEmpty) {
+        return 'Utilisateur non connecté';
+      }
+
+      // 1. Vérifier l'ancien mot de passe
+      try {
+        await clientSpb.auth.signInWithPassword(
+          email: email,
+          password: currentPassword,
+        );
+      } on AuthApiException catch (e) {
+        // Mot de passe actuel faux
+        if (e.statusCode == '400' ||
+            e.message.toLowerCase().contains('invalid') ||
+            e.message.toLowerCase().contains('credentials')) {
+          return 'Ancien mot de passe incorrect';
+        }
+        return e.message;
+      }
+
+      // 2. Mettre à jour
+      final update = await clientSpb.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+
+      if (update.user == null) {
+        return 'Échec de la mise à jour du mot de passe';
+      }
+
+      return null; // succès
+    } on AuthApiException catch (e) {
+      return e.message;
+    } catch (e) {
+      return e.toString();
+    }
+  }
 }
