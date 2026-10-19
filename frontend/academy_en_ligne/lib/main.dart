@@ -1,10 +1,13 @@
 import 'package:academy_en_ligne/features/admin/home/admin_home_page.dart';
 import 'package:academy_en_ligne/features/admin/providers/local_provider.dart';
+import 'package:academy_en_ligne/features/student/courses/courses_page.dart';
 import 'package:academy_en_ligne/features/student/home/login_page.dart';
 import 'package:academy_en_ligne/features/student/home/register_page.dart';
 import 'package:academy_en_ligne/features/student/home/splash_screen.dart';
 import 'package:academy_en_ligne/features/student/home/student_home_page.dart';
+import 'package:academy_en_ligne/features/student/subjects/subjects_page.dart';
 import 'package:academy_en_ligne/providers/auth_controller.dart';
+import 'package:academy_en_ligne/providers/course_provider.dart';
 import 'package:academy_en_ligne/providers/subject_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,6 +34,7 @@ void main() async {
     ChangeNotifierProvider(create: (_) => LocaleProvider()),
     ChangeNotifierProvider.value(value: AuthController()),
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
+    ChangeNotifierProvider(create: (_) => CourseProvider()),
   ], child: const MyApp()));
 }
 
@@ -62,6 +66,15 @@ class MyApp extends StatelessWidget {
           '/signup': (_) => const RegisterPage(),
           '/admin_home': (context) => const AdminHomePage(),
           '/student_home': (context) => const StudentHomePage(),
+          '/subjects': (_) => const SubjectsPage(),
+          '/courses': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>;
+            return CoursesPage(
+              subjectId: args['subjectId'] as int,
+              subjectName: args['subjectName'] as String,
+            );
+          },
         },
       );
     });

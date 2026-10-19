@@ -1,3 +1,6 @@
+import 'package:academy_en_ligne/features/student/courses/courses_page.dart';
+import 'package:academy_en_ligne/features/student/profile/profile_page.dart';
+import 'package:academy_en_ligne/features/student/subjects/subjects_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -53,9 +56,27 @@ class _StudentHomePageState extends State<StudentHomePage> {
               children: [
                 _buildAppBar(firstName),
                 Expanded(
-                  child: _currentIndex == 0
-                      ? _buildHomeBody(student)
-                      : _buildPlaceholderTab(_currentIndex),
+                  child: IndexedStack(
+                    index: _currentIndex,
+                    children: [
+                      // 0 – Accueil
+                      _buildHomeBody(student),
+
+                      // 1 – Matières
+                      const SubjectsPage(),
+
+                      // 2 – Résultats (pas encore fait)
+                      const Center(
+                        child: Text(
+                          'Résultats – à venir',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      ),
+
+                      // 3 – Profil
+                      const ProfilePage(),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -122,10 +143,37 @@ class _StudentHomePageState extends State<StudentHomePage> {
             color: const Color(0xFF1A1A2E),
           ),
           GestureDetector(
-            onTap: () => _showLogoutDialog(
-              context,
-              context.read<AuthController>(),
-            ),
+            onTap: () async {
+              final action = await showModalBottomSheet<String>(
+                context: context,
+                builder: (ctx) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.person),
+                        title: const Text('Mon profil'),
+                        onTap: () => Navigator.pop(ctx, 'profile'),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.logout, color: Colors.red),
+                        title: const Text('Déconnexion'),
+                        onTap: () => Navigator.pop(ctx, 'logout'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+
+              if (action == 'profile') {
+                setState(() => _currentIndex = 3);
+              } else if (action == 'logout') {
+                await _showLogoutDialog(
+                  context,
+                  context.read<AuthController>(),
+                );
+              }
+            },
             child: CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.primary.withOpacity(0.15),
@@ -293,7 +341,9 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 const Spacer(),
                 TextButton(
                   onPressed: () {
-                    // Navigator.pushNamed(context, '/subjects');
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const SubjectsPage()),
+                    );
                   },
                   child: const Text(
                     'Tout voir >',
@@ -345,7 +395,14 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     icon: _subjectIcon(subject.name),
                     backgroundColor: _subjectBlue(index),
                     onTap: () {
-                      // TODO: ouvrir les chapitres de cette matière
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => CoursesPage(
+                            subjectId: subject.id,
+                            subjectName: subject.name,
+                          ),
+                        ),
+                      );
                     },
                   );
                 },
@@ -403,15 +460,6 @@ class _StudentHomePageState extends State<StudentHomePage> {
     );
   }
 
-  Widget _buildPlaceholderTab(int index) {
-    final labels = ['Accueil', 'Matières', 'Résultats', 'Profil'];
-    return Center(
-      child: Text(
-        'Page ${labels[index]} – à venir',
-        style: const TextStyle(color: Colors.grey, fontSize: 16),
-      ),
-    );
-  }
 
   // ============================================================
   // HELPERS
