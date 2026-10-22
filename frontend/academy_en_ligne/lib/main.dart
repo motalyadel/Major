@@ -8,6 +8,7 @@ import 'package:academy_en_ligne/features/student/home/student_home_page.dart';
 import 'package:academy_en_ligne/features/student/subjects/subjects_page.dart';
 import 'package:academy_en_ligne/providers/auth_controller.dart';
 import 'package:academy_en_ligne/providers/course_provider.dart';
+import 'package:academy_en_ligne/providers/lesson_provider.dart';
 import 'package:academy_en_ligne/providers/subject_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -35,6 +36,7 @@ void main() async {
     ChangeNotifierProvider.value(value: AuthController()),
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
     ChangeNotifierProvider(create: (_) => CourseProvider()),
+    ChangeNotifierProvider(create: (_) => LessonProvider()),
   ], child: const MyApp()));
 }
 
