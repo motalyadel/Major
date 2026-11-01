@@ -6,6 +6,7 @@ import 'package:academy_en_ligne/features/student/home/register_page.dart';
 import 'package:academy_en_ligne/features/student/home/splash_screen.dart';
 import 'package:academy_en_ligne/features/student/home/student_home_page.dart';
 import 'package:academy_en_ligne/features/student/subjects/subjects_page.dart';
+import 'package:academy_en_ligne/providers/admin_content_provider.dart';
 import 'package:academy_en_ligne/providers/auth_controller.dart';
 import 'package:academy_en_ligne/providers/course_provider.dart';
 import 'package:academy_en_ligne/providers/lesson_provider.dart';
@@ -14,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:academy_en_ligne/core/utils/navigator.dart';
 import 'package:academy_en_ligne/l10n/generated/app_localizations.dart';
-import 'package:academy_en_ligne/features/admin/providers/local_provider.dart';
+// import 'package:academy_en_ligne/features/admin/providers/loc`al_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -37,6 +38,7 @@ void main() async {
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
     ChangeNotifierProvider(create: (_) => CourseProvider()),
     ChangeNotifierProvider(create: (_) => LessonProvider()),
+    ChangeNotifierProvider(create: (_) => AdminContentProvider()),
   ], child: const MyApp()));
 }
 

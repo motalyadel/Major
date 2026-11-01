@@ -1,3 +1,4 @@
+import 'package:academy_en_ligne/features/student/lessons/lessons_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:academy_en_ligne/providers/course_provider.dart';
@@ -94,8 +95,14 @@ class _CoursesPageState extends State<CoursesPage> {
                   title: course.title,
                   description: course.description,
                   onTap: () {
-                    // TODO CNT-3 : ouvrir les leçons de ce chapitre
-                    // Navigator.push(... LessonsPage(courseId: course.id))
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => LessonsPage(
+                          courseId: course.id,
+                          courseTitle: course.title,
+                        ),
+                      ),
+                    );
                   },
                 );
               },

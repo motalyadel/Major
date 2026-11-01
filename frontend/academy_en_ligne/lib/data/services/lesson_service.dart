@@ -10,8 +10,8 @@ class LessonService {
         .from('lessons')
         .select()
         .eq('course_id', courseId)
-        .order('order')
-        .order('title');
+        .order('order', ascending: true)
+        .order('title', ascending: true);
 
     return (response as List)
         .map((e) => Lesson.fromMap(Map<String, dynamic>.from(e)))

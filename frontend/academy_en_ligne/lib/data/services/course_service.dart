@@ -11,8 +11,8 @@ class CourseService {
         .from('courses')
         .select()
         .eq('subject_id', subjectId)
-        .order('order')
-        .order('title');
+        .order('order', ascending: true)
+        .order('title', ascending: true);
 
     return (response as List)
         .map((e) => Course.fromMap(Map<String, dynamic>.from(e)))
